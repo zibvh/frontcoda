@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>frntcoda admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Geist:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --r:#C8301A;--a:#D4850A;
+  --bg:#0D0704;--s:#141008;--s2:#1C1410;
+  --b:rgba(200,48,26,0.13);--b2:rgba(255,255,255,0.06);
+  --t:#EDE6E0;--td:#7A6F6A;--tdd:#3A3330;
+  --green:#1E8A4A;--green-b:rgba(30,138,74,0.15);
+}
+body{background:var(--bg);color:var(--t);font-family:'Geist',system-ui,sans-serif;font-weight:400;min-height:100vh}
+
+/* ── LAYOUT ── */
+.shell{display:flex;min-height:100vh}
+.sidebar{width:220px;flex-shrink:0;border-right:1px solid var(--b);padding:24px 0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.main{flex:1;min-width:0;overflow-x:hidden}
+
+/* sidebar */
+.sb-logo{display:flex;align-items:center;gap:8px;padding:0 20px 28px;cursor:pointer}
+.sb-logo-sq{width:26px;height:26px;background:var(--r);border-radius:6px;display:grid;place-items:center;flex-shrink:0}
+.sb-logo-name{font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:800;letter-spacing:-0.03em}
+.sb-section{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--tdd);padding:0 20px;margin-bottom:8px;margin-top:16px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:0.82rem;color:var(--td);cursor:pointer;transition:color .15s,background .15s;border:none;background:none;font-family:'Geist',system-ui,sans-serif;width:100%;text-align:left}
+.sb-item:hover{color:var(--t);background:var(--b2)}
+.sb-item.active{color:var(--t);background:var(--b)}
+.sb-item svg{stroke:currentColor;flex-shrink:0;opacity:.7}
+.sb-spacer{flex:1}
+.sb-foot{padding:16px 20px;font-size:0.7rem;color:var(--tdd)}
+.sb-foot a{color:var(--td);text-decoration:none}
+.sb-foot a:hover{color:var(--r)}
+
+/* ── PANELS ── */
+.panel{padding:32px 36px;display:none}
+.panel.active{display:block}
+.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+.panel-title{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;letter-spacing:-0.02em}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 18px;border-radius:6px;font-size:0.8rem;font-weight:500;cursor:pointer;border:none;font-family:'Geist',system-ui,sans-serif;transition:opacity .15s,transform .1s}
+.btn:hover{opacity:.85;transform:translateY(-1px)}
+.btn-red{background:var(--r);color:#fff}
+.btn-outline{background:transparent;color:var(--td);border:1px solid var(--b2)}
+.btn-outline:hover{color:var(--t);border-color:var(--td)}
+.btn-danger{background:transparent;color:#C84040;border:1px solid rgba(200,64,64,0.25);font-size:0.74rem;padding:5px 12px}
+.btn-danger:hover{background:rgba(200,64,64,0.1)}
+.btn-sm{padding:5px 13px;font-size:0.74rem}
+.btn-green{background:var(--green);color:#fff}
+
+/* ── APP LIST (admin) ── */
+.a-grid{display:flex;flex-direction:column;gap:0}
+.a-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--b)}
+.a-row:first-child{border-top:1px solid var(--b)}
+.a-ico{width:44px;height:44px;border-radius:10px;background:var(--s2);flex-shrink:0;overflow:hidden;display:grid;place-items:center;font-size:1.2rem}
+.a-ico img{width:100%;height:100%;object-fit:cover}
+.a-info{flex:1;min-width:0}
+.a-info h4{font-size:0.88rem;font-weight:500;color:var(--t);margin-bottom:2px}
+.a-info span{font-size:0.72rem;color:var(--tdd)}
+.a-actions{display:flex;gap:8px;flex-shrink:0}
+
+/* ── FORM ── */
+.form-wrap{max-width:680px}
+.form-section{margin-bottom:32px}
+.form-section-title{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--tdd);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--b)}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:0.75rem;color:var(--td);margin-bottom:6px;font-weight:500}
+.field input,.field textarea,.field select{width:100%;background:var(--s);border:1px solid var(--b2);color:var(--t);padding:9px 13px;border-radius:7px;font-size:0.85rem;font-family:'Geist',system-ui,sans-serif;outline:none;transition:border-color .15s}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:rgba(200,48,26,0.4)}
+.field textarea{resize:vertical;min-height:90px;line-height:1.55}
+.field select option{background:#1C1008}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+/* image upload */
+.img-upload{border:1px dashed var(--b2);border-radius:8px;padding:20px;text-align:center;cursor:pointer;transition:border-color .15s;position:relative}
+.img-upload:hover{border-color:var(--r)}
+.img-upload input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.img-upload-label{font-size:0.75rem;color:var(--tdd);pointer-events:none}
+.img-preview{width:100%;max-height:180px;object-fit:cover;border-radius:6px;display:none;margin-top:10px}
+.img-preview.show{display:block}
+.icon-preview{width:60px;height:60px;border-radius:12px;object-fit:cover;display:none;margin:8px auto 0}
+.icon-preview.show{display:block}
+
+/* screenshots */
+.screenshots-grid{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.ss-item{position:relative;width:90px;height:160px;border-radius:8px;overflow:hidden;background:var(--s2);flex-shrink:0}
+.ss-item img{width:100%;height:100%;object-fit:cover}
+.ss-remove{position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.7);border:none;color:#fff;width:20px;height:20px;border-radius:50%;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.ss-add{width:90px;height:160px;border-radius:8px;border:1px dashed var(--b2);display:flex;align-items:center;justify-content:center;color:var(--tdd);font-size:1.4rem;cursor:pointer;flex-shrink:0;transition:border-color .15s;position:relative}
+.ss-add:hover{border-color:var(--r);color:var(--r)}
+.ss-add input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+
+/* features */
+.features-list{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.feat-row{display:grid;grid-template-columns:50px 1fr 1fr auto;gap:8px;align-items:center}
+.feat-row input{margin:0}
+.feat-remove{background:none;border:none;color:var(--tdd);cursor:pointer;font-size:1rem;padding:4px;transition:color .15s}
+.feat-remove:hover{color:#C84040}
+
+/* updates */
+.updates-list{display:flex;flex-direction:column;gap:12px}
+.update-card{background:var(--s);border:1px solid var(--b);border-radius:8px;padding:16px}
+.update-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.update-ver{font-size:0.85rem;font-weight:500;color:var(--t)}
+.update-date{font-size:0.7rem;color:var(--tdd)}
+.update-notes{font-size:0.78rem;color:var(--td);line-height:1.55;white-space:pre-line}
+.update-screens{display:flex;gap:6px;margin-top:10px}
+.update-screen-thumb{width:50px;height:88px;border-radius:5px;object-fit:cover}
+
+/* update form */
+.update-form{background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:18px;margin-bottom:16px}
+.update-form .field{margin-bottom:12px}
+.update-form .field:last-child{margin-bottom:0}
+
+/* toast */
+#toast{position:fixed;bottom:28px;right:28px;background:#1E2820;border:1px solid var(--green);color:#6ECF9A;padding:10px 18px;border-radius:8px;font-size:0.8rem;font-weight:500;transform:translateY(20px);opacity:0;transition:all .25s;pointer-events:none;z-index:999}
+#toast.show{transform:translateY(0);opacity:1}
+#toast.err{background:#201418;border-color:rgba(200,64,64,0.4);color:#CF6E6E}
+
+/* empty */
+.empty{padding:48px 0;text-align:center;color:var(--tdd);font-size:0.82rem}
+
+@media(max-width:700px){
+  .sidebar{display:none}
+  .panel{padding:20px 18px}
+  .row-2,.row-3{grid-template-columns:1fr}
+  .feat-row{grid-template-columns:40px 1fr auto;grid-template-rows:auto auto}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sb-logo" onclick="window.open('/', '_blank')">
+    <div class="sb-logo-sq">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <rect x="3" y="3" width="2" height="10" fill="white" rx="1"/>
+        <rect x="3" y="3" width="7" height="2" fill="white" rx="1"/>
+        <rect x="3" y="7.5" width="5" height="1.5" fill="white" rx="0.75"/>
+        <path d="M11 13c0 0 3.5-3.5 2-7.5 0 0-1 2-2.5 1.5 0 0 2-3 .5-5C11 2 8.5 4.5 8.5 7.5c0 0-1-1.5-.3-3.5C8.2 4 6.5 6 7 8.5 7.5 11.5 9.5 13.5 11 13Z" fill="url(#gn)"/>
+        <defs><linearGradient id="gn" x1="9.5" y1="2" x2="9.5" y2="13" gradientUnits="userSpaceOnUse"><stop stop-color="#F0C040"/><stop offset="1" stop-color="#C8301A"/></linearGradient></defs>
+      </svg>
+    </div>
+    <span class="sb-logo-name">frntcoda</span>
+  </div>
+
+  <div class="sb-section">Manage</div>
+  <button class="sb-item active" onclick="showPanel('apps',this)">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke-width="1.3"/><rect x="8" y="1" width="5" height="5" rx="1" stroke-width="1.3"/><rect x="1" y="8" width="5" height="5" rx="1" stroke-width="1.3"/><rect x="8" y="8" width="5" height="5" rx="1" stroke-width="1.3"/></svg>
+    All Apps
+  </button>
+  <button class="sb-item" onclick="showPanel('new',this)">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke-width="1.5" stroke-linecap="round"/></svg>
+    New App
+  </button>
+
+  <div class="sb-spacer"></div>
+  <div class="sb-foot"><a href="/" target="_blank">↗ View site</a></div>
+</aside>
+
+<!-- ── MAIN ── -->
+<main class="main">
+
+  <!-- ALL APPS -->
+  <div class="panel active" id="panel-apps">
+    <div class="panel-header">
+      <span class="panel-title">Apps</span>
+      <button class="btn btn-red" onclick="showPanel('new', document.querySelector('.sb-item:nth-child(4)'))">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+        New App
+      </button>
+    </div>
+    <div id="admin-apps-list"><div class="empty">Loading…</div></div>
+  </div>
+
+  <!-- NEW APP -->
+  <div class="panel" id="panel-new">
+    <div class="panel-header">
+      <span class="panel-title">New App</span>
+    </div>
+    <div class="form-wrap" id="new-form-wrap">
+      <!-- rendered by renderAppForm() -->
+    </div>
+  </div>
+
+  <!-- EDIT APP -->
+  <div class="panel" id="panel-edit">
+    <div class="panel-header">
+      <span class="panel-title" id="edit-panel-title">Edit App</span>
+    </div>
+    <div class="form-wrap" id="edit-form-wrap"></div>
+  </div>
+
+  <!-- UPDATES -->
+  <div class="panel" id="panel-updates">
+    <div class="panel-header">
+      <span class="panel-title" id="updates-panel-title">Updates</span>
+    </div>
+    <div id="updates-body"></div>
+  </div>
+
+</main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const API = '/api/apps';
+let allApps = [];
+let editingId = null;
+// screenshot state per context: new / edit
+const ssState = { new: [], edit: [] };
+
+// ── UTILS ──────────────────────────────────────
+
+function toast(msg, err=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show' + (err?' err':'');
+  clearTimeout(t._t);
+  t._t = setTimeout(()=>t.className='', 3000);
+}
+
+function showPanel(name, btn) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(name==='apps') loadAdminApps();
+  if(name==='new') { editingId=null; ssState.new=[]; renderAppForm('new-form-wrap','new'); }
+}
+
+function fileToBase64(file) {
+  return new Promise((res,rej)=>{
+    const r = new FileReader();
+    r.onload = e => res(e.target.result);
+    r.onerror = ()=>rej();
+    r.readAsDataURL(file);
+  });
+}
+
+// ── LOAD APPS ──────────────────────────────────
+
+async function loadAdminApps() {
+  try {
+    const r = await fetch(API);
+    allApps = await r.json();
+    const el = document.getElementById('admin-apps-list');
+    if(!allApps.length) { el.innerHTML='<div class="empty">No apps yet. Create one.</div>'; return; }
+    el.innerHTML = '<div class="a-grid">'+allApps.map(a=>`
+      <div class="a-row">
+        <div class="a-ico">${a.icon?`<img src="${a.icon}"/>`:'📦'}</div>
+        <div class="a-info">
+          <h4>${a.name}</h4>
+          <span>${a.category||''} ${a.version?'· v'+a.version:''}</span>
+        </div>
+        <div class="a-actions">
+          <button class="btn btn-outline btn-sm" onclick="openUpdates('${a._id}','${a.name}')">Updates</button>
+          <button class="btn btn-outline btn-sm" onclick="openEdit('${a._id}')">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteApp('${a._id}','${a.name}')">Delete</button>
+        </div>
+      </div>`).join('')+'</div>';
+  } catch(e) { toast('Failed to load apps',true); }
+}
+
+// ── FORM RENDER ────────────────────────────────
+
+function renderAppForm(wrapperId, ctx, app={}) {
+  const wrap = document.getElementById(wrapperId);
+  // init screenshots from app if editing
+  ssState[ctx] = (app.screenshots||[]).map((s,i)=>({id:i,data:s}));
+
+  wrap.innerHTML = `
+  <!-- IMAGES -->
+  <div class="form-section">
+    <div class="form-section-title">Images</div>
+    <div class="row-2">
+      <div class="field">
+        <label>Banner (wide, e.g. 1200×400)</label>
+        <div class="img-upload" id="${ctx}-banner-drop">
+          <input type="file" accept="image/*" onchange="handleBanner(this,'${ctx}')"/>
+          <div class="img-upload-label">Click to upload banner</div>
+          <img class="img-preview ${app.banner?'show':''}" id="${ctx}-banner-preview" src="${app.banner||''}"/>
+        </div>
+      </div>
+      <div class="field">
+        <label>App Icon (square)</label>
+        <div class="img-upload" id="${ctx}-icon-drop">
+          <input type="file" accept="image/*" onchange="handleIcon(this,'${ctx}')"/>
+          <div class="img-upload-label">Click to upload icon</div>
+          <img class="icon-preview ${app.icon?'show':''}" id="${ctx}-icon-preview" src="${app.icon||''}"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BASIC INFO -->
+  <div class="form-section">
+    <div class="form-section-title">Basic Info</div>
+    <div class="row-2">
+      <div class="field"><label>App Name *</label><input type="text" id="${ctx}-name" value="${esc(app.name||'')}" placeholder="Bixcart"/></div>
+      <div class="field"><label>Category</label><input type="text" id="${ctx}-category" value="${esc(app.category||'')}" placeholder="Marketplace"/></div>
+    </div>
+    <div class="field"><label>Tagline (one-liner)</label><input type="text" id="${ctx}-tagline" value="${esc(app.tagline||'')}" placeholder="Short punchy description"/></div>
+    <div class="field"><label>About (full description, use blank lines for paragraphs)</label><textarea id="${ctx}-about" rows="5">${esc(app.about||'')}</textarea></div>
+    <div class="row-3">
+      <div class="field"><label>Version</label><input type="text" id="${ctx}-version" value="${esc(app.version||'1.0.0')}"/></div>
+      <div class="field"><label>Size</label><input type="text" id="${ctx}-size" value="${esc(app.size||'')}" placeholder="18 MB"/></div>
+      <div class="field"><label>Platform</label><input type="text" id="${ctx}-platform" value="${esc(app.platform||'')}" placeholder="Android · Web"/></div>
+    </div>
+    <div class="row-2">
+      <div class="field"><label>Download URL</label><input type="text" id="${ctx}-downloadUrl" value="${esc(app.downloadUrl||'#')}"/></div>
+      <div class="field"><label>Downloads (display)</label><input type="text" id="${ctx}-downloads" value="${esc(app.downloads||'')}" placeholder="4.2k"/></div>
+    </div>
+    <div class="row-2">
+      <div class="field"><label>Rating (0–5)</label><input type="number" id="${ctx}-rating" value="${app.rating||''}" min="0" max="5" step="0.1"/></div>
+      <div class="field"><label>Display Order</label><input type="number" id="${ctx}-order" value="${app.order||0}"/></div>
+    </div>
+  </div>
+
+  <!-- SCREENSHOTS -->
+  <div class="form-section">
+    <div class="form-section-title">Screenshots</div>
+    <div class="screenshots-grid" id="${ctx}-ss-grid"></div>
+    <div class="ss-add" title="Add screenshot">
+      <input type="file" accept="image/*" multiple onchange="handleScreenshots(this,'${ctx}')"/>
+      +
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="form-section">
+    <div class="form-section-title">Features</div>
+    <div class="features-list" id="${ctx}-feats"></div>
+    <button class="btn btn-outline btn-sm" type="button" onclick="addFeatureRow('${ctx}')">+ Add Feature</button>
+  </div>
+
+  <div style="display:flex;gap:12px;padding-top:8px">
+    <button class="btn btn-red" onclick="submitForm('${ctx}')">
+      ${ctx==='new'?'Create App':'Save Changes'}
+    </button>
+    <button class="btn btn-outline" onclick="showPanel('apps',document.querySelector('.sb-item'))">Cancel</button>
+  </div>
+  `;
+
+  // render existing features
+  (app.features||[]).forEach(f => addFeatureRow(ctx, f));
+  renderSsGrid(ctx);
+}
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;') }
+
+function renderSsGrid(ctx) {
+  const grid = document.getElementById(ctx+'-ss-grid');
+  if(!grid) return;
+  grid.innerHTML = ssState[ctx].map((ss,i)=>`
+    <div class="ss-item">
+      <img src="${ss.data}"/>
+      <button class="ss-remove" onclick="removeScreenshot('${ctx}',${i})">×</button>
+    </div>`).join('');
+}
+
+function removeScreenshot(ctx, idx) {
+  ssState[ctx].splice(idx,1);
+  renderSsGrid(ctx);
+}
+
+async function handleScreenshots(input, ctx) {
+  const files = Array.from(input.files);
+  for(const f of files) {
+    const data = await fileToBase64(f);
+    ssState[ctx].push({id:Date.now()+Math.random(), data});
+  }
+  renderSsGrid(ctx);
+  input.value='';
+}
+
+async function handleBanner(input, ctx) {
+  const f = input.files[0]; if(!f) return;
+  const data = await fileToBase64(f);
+  const img = document.getElementById(ctx+'-banner-preview');
+  img.src = data; img.classList.add('show');
+  input._b64 = data;
+}
+
+async function handleIcon(input, ctx) {
+  const f = input.files[0]; if(!f) return;
+  const data = await fileToBase64(f);
+  const img = document.getElementById(ctx+'-icon-preview');
+  img.src = data; img.classList.add('show');
+  input._b64 = data;
+}
+
+let featCounter = 0;
+function addFeatureRow(ctx, feat={}) {
+  const id = 'feat-'+(++featCounter);
+  const list = document.getElementById(ctx+'-feats');
+  const row = document.createElement('div');
+  row.className='feat-row'; row.id=id;
+  row.innerHTML=`
+    <input type="text" placeholder="🛒" value="${esc(feat.icon||'')}" style="text-align:center"/>
+    <input type="text" placeholder="Feature title" value="${esc(feat.title||'')}"/>
+    <input type="text" placeholder="Short description" value="${esc(feat.desc||'')}"/>
+    <button class="feat-remove" onclick="document.getElementById('${id}').remove()">×</button>
+  `;
+  list.appendChild(row);
+}
+
+function collectFeatures(ctx) {
+  const rows = document.querySelectorAll(`#${ctx}-feats .feat-row`);
+  return Array.from(rows).map(r=>{
+    const ins = r.querySelectorAll('input');
+    return { icon:ins[0].value.trim(), title:ins[1].value.trim(), desc:ins[2].value.trim() };
+  }).filter(f=>f.title);
+}
+
+function getVal(id){ const el=document.getElementById(id); return el?el.value.trim():'' }
+
+async function submitForm(ctx) {
+  const name = getVal(ctx+'-name');
+  if(!name){ toast('App name is required',true); return; }
+
+  // get images
+  const bannerInput = document.querySelector(`#${ctx}-banner-drop input`);
+  const iconInput = document.querySelector(`#${ctx}-icon-drop input`);
+
+  const payload = {
+    name,
+    category: getVal(ctx+'-category'),
+    tagline:  getVal(ctx+'-tagline'),
+    about:    getVal(ctx+'-about'),
+    version:  getVal(ctx+'-version') || '1.0.0',
+    size:     getVal(ctx+'-size'),
+    platform: getVal(ctx+'-platform'),
+    downloadUrl: getVal(ctx+'-downloadUrl') || '#',
+    downloads: getVal(ctx+'-downloads'),
+    rating:   parseFloat(getVal(ctx+'-rating')) || 0,
+    order:    parseInt(getVal(ctx+'-order')) || 0,
+    features: collectFeatures(ctx),
+    screenshots: ssState[ctx].map(s=>s.data),
+  };
+
+  // only include images if new ones were picked
+  if(bannerInput._b64) payload.banner = bannerInput._b64;
+  if(iconInput._b64) payload.icon = iconInput._b64;
+
+  try {
+    const isEdit = ctx==='edit';
+    const url = isEdit ? `${API}/${editingId}` : API;
+    const method = isEdit ? 'PUT' : 'POST';
+    const res = await fetch(url, { method, headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+    if(!res.ok) throw new Error((await res.json()).error);
+    toast(isEdit ? 'App updated ✓' : 'App created ✓');
+    setTimeout(()=>showPanel('apps', document.querySelector('.sb-item')), 800);
+  } catch(e) {
+    toast(e.message||'Error saving app', true);
+  }
+}
+
+// ── EDIT ───────────────────────────────────────
+
+async function openEdit(id) {
+  editingId = id;
+  try {
+    const r = await fetch(`${API}/${id}`);
+    const app = await r.json();
+    document.getElementById('edit-panel-title').textContent = 'Edit — '+app.name;
+    ssState.edit = (app.screenshots||[]).map((s,i)=>({id:i,data:s}));
+    renderAppForm('edit-form-wrap','edit', app);
+    showPanel('edit', null);
+    // mark edit sb item
+    document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
+  } catch(e) { toast('Failed to load app', true); }
+}
+
+// ── DELETE ──────────────────────────────────────
+
+async function deleteApp(id, name) {
+  if(!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+  try {
+    await fetch(`${API}/${id}`, {method:'DELETE'});
+    toast('Deleted.');
+    loadAdminApps();
+  } catch(e) { toast('Delete failed',true); }
+}
+
+// ── UPDATES ────────────────────────────────────
+
+let updatesAppId = null;
+let updSsState = [];
+
+async function openUpdates(id, name) {
+  updatesAppId = id;
+  updSsState = [];
+  document.getElementById('updates-panel-title').textContent = 'Updates — '+name;
+  showPanel('updates', null);
+  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
+  await loadUpdates(id);
+}
+
+async function loadUpdates(id) {
+  const body = document.getElementById('updates-body');
+  try {
+    const r = await fetch(`${API}/${id}`);
+    const app = await r.json();
+
+    const listHTML = (app.updates||[]).length
+      ? (app.updates||[]).map(u=>`
+          <div class="update-card">
+            <div class="update-card-head">
+              <span class="update-ver">v${u.version}</span>
+              <div style="display:flex;align-items:center;gap:10px">
+                <span class="update-date">${new Date(u.date).toLocaleDateString('en-NG',{year:'numeric',month:'short',day:'numeric'})}</span>
+                <button class="btn btn-danger btn-sm" onclick="deleteUpdate('${id}','${u._id}')">Remove</button>
+              </div>
+            </div>
+            <div class="update-notes">${u.whatsNew}</div>
+            ${(u.screenshots||[]).length?`<div class="update-screens">${u.screenshots.map(s=>`<img class="update-screen-thumb" src="${s}" loading="lazy"/>`).join('')}</div>`:''}
+          </div>`).join('')
+      : '<div class="empty" style="padding:20px 0">No updates yet.</div>';
+
+    body.innerHTML = `
+      <div class="update-form">
+        <div style="font-size:0.8rem;font-weight:500;color:var(--t);margin-bottom:14px">Post New Update</div>
+        <div class="row-2">
+          <div class="field"><label>Version *</label><input type="text" id="upd-version" placeholder="2.1.0"/></div>
+        </div>
+        <div class="field"><label>What's new</label><textarea id="upd-notes" rows="4" placeholder="— Fixed crash on startup&#10;— Improved performance&#10;— Added dark mode"></textarea></div>
+        <div class="field">
+          <label>Screenshots (optional)</label>
+          <div class="screenshots-grid" id="upd-ss-grid"></div>
+          <div class="ss-add" style="width:70px;height:120px">
+            <input type="file" accept="image/*" multiple onchange="handleUpdSs(this)"/> +
+          </div>
+        </div>
+        <button class="btn btn-green btn-sm" onclick="postUpdate()">Post Update</button>
+      </div>
+      <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--tdd);margin-bottom:14px">History</div>
+      <div class="updates-list">${listHTML}</div>`;
+  } catch(e) { toast('Failed to load updates',true); }
+}
+
+async function handleUpdSs(input) {
+  const files = Array.from(input.files);
+  for(const f of files) {
+    const data = await fileToBase64(f);
+    updSsState.push(data);
+  }
+  const grid = document.getElementById('upd-ss-grid');
+  grid.innerHTML = updSsState.map((s,i)=>`
+    <div class="ss-item">
+      <img src="${s}"/>
+      <button class="ss-remove" onclick="updSsState.splice(${i},1);handleUpdSs({files:[]})">×</button>
+    </div>`).join('');
+  input.value='';
+}
+
+async function postUpdate() {
+  const version = document.getElementById('upd-version').value.trim();
+  const whatsNew = document.getElementById('upd-notes').value.trim();
+  if(!version||!whatsNew){ toast('Version and notes are required',true); return; }
+  try {
+    const res = await fetch(`${API}/${updatesAppId}/updates`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ version, whatsNew, screenshots: updSsState })
+    });
+    if(!res.ok) throw new Error((await res.json()).error);
+    toast('Update posted ✓');
+    updSsState=[];
+    loadUpdates(updatesAppId);
+  } catch(e){ toast(e.message||'Error',true); }
+}
+
+async function deleteUpdate(appId, uid) {
+  if(!confirm('Remove this update?')) return;
+  try {
+    await fetch(`${API}/${appId}/updates/${uid}`, {method:'DELETE'});
+    toast('Removed.');
+    loadUpdates(appId);
+  } catch(e){ toast('Failed',true); }
+}
+
+// ── INIT ───────────────────────────────────────
+loadAdminApps();
+renderAppForm('new-form-wrap','new');
+</script>
+</body>
+</html>
