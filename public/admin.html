@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>frntcoda admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Geist:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --r:#C8301A;--bg:#0D0704;--s:#141008;--s2:#1C1410;
+  --b:rgba(200,48,26,0.13);--b2:rgba(255,255,255,0.07);
+  --t:#EDE6E0;--td:#7A6F6A;--tdd:#3A3330;
+  --green:#1E8A4A;
+}
+body{background:var(--bg);color:var(--t);font-family:'Geist',system-ui,sans-serif;min-height:100vh}
+
+.shell{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sb{width:210px;flex-shrink:0;border-right:1px solid var(--b);padding:24px 0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sb-logo{display:flex;align-items:center;gap:8px;padding:0 18px 28px;cursor:pointer}
+.sb-sq{width:26px;height:26px;background:var(--r);border-radius:6px;display:grid;place-items:center;flex-shrink:0}
+.sb-name{font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:800;letter-spacing:-0.03em}
+.sb-sec{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--tdd);padding:0 18px;margin:16px 0 6px}
+.sb-btn{display:flex;align-items:center;gap:9px;padding:8px 18px;font-size:0.81rem;color:var(--td);cursor:pointer;border:none;background:none;font-family:inherit;width:100%;text-align:left;transition:color .15s,background .15s}
+.sb-btn:hover{color:var(--t);background:rgba(255,255,255,0.03)}
+.sb-btn.on{color:var(--t);background:var(--b)}
+.sb-btn svg{stroke:currentColor;opacity:.65;flex-shrink:0}
+.sb-foot{margin-top:auto;padding:16px 18px;font-size:0.7rem;color:var(--tdd)}
+.sb-foot a{color:var(--td);text-decoration:none}
+.sb-foot a:hover{color:var(--r)}
+
+/* MAIN */
+.main{flex:1;min-width:0}
+.panel{padding:30px 34px;display:none}
+.panel.on{display:block}
+.panel-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px}
+.panel-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;letter-spacing:-0.02em}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:7px 16px;border-radius:6px;font-size:0.79rem;font-weight:500;cursor:pointer;border:none;font-family:inherit;transition:opacity .15s,transform .1s}
+.btn:hover{opacity:.83;transform:translateY(-1px)}
+.btn-r{background:var(--r);color:#fff}
+.btn-o{background:transparent;color:var(--td);border:1px solid var(--b2)}
+.btn-o:hover{color:var(--t);border-color:rgba(255,255,255,0.2)}
+.btn-del{background:transparent;color:#B85050;border:1px solid rgba(184,80,80,0.22);font-size:0.72rem;padding:4px 11px}
+.btn-del:hover{background:rgba(184,80,80,0.1)}
+.btn-g{background:var(--green);color:#fff}
+.sm{padding:5px 12px;font-size:0.73rem}
+
+/* APP LIST */
+.a-grid{display:flex;flex-direction:column}
+.a-row{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--b)}
+.a-row:first-child{border-top:1px solid var(--b)}
+.a-ico{width:42px;height:42px;border-radius:10px;background:var(--s2);flex-shrink:0;overflow:hidden;display:grid;place-items:center;font-size:1.1rem}
+.a-ico img{width:100%;height:100%;object-fit:cover}
+.a-info{flex:1;min-width:0}
+.a-info h4{font-size:0.87rem;font-weight:500;margin-bottom:2px}
+.a-info span{font-size:0.7rem;color:var(--tdd)}
+.a-acts{display:flex;gap:7px;flex-shrink:0}
+.empty{padding:48px 0;color:var(--tdd);font-size:0.82rem}
+
+/* FORM */
+.fw{max-width:660px}
+.fsec{margin-bottom:28px}
+.fsec-title{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--tdd);margin-bottom:14px;padding-bottom:9px;border-bottom:1px solid var(--b)}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:0.73rem;color:var(--td);margin-bottom:5px;font-weight:500}
+.field input,.field textarea,.field select{width:100%;background:var(--s);border:1px solid var(--b2);color:var(--t);padding:8px 12px;border-radius:7px;font-size:0.84rem;font-family:inherit;outline:none;transition:border-color .15s}
+.field input:focus,.field textarea:focus{border-color:rgba(200,48,26,0.4)}
+.field textarea{resize:vertical;min-height:80px;line-height:1.5}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+/* file drop */
+.fdrop{border:1px dashed var(--b2);border-radius:8px;padding:16px;text-align:center;cursor:pointer;transition:border-color .15s;position:relative;overflow:hidden}
+.fdrop:hover{border-color:var(--r)}
+.fdrop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.fdrop-lbl{font-size:0.72rem;color:var(--tdd);pointer-events:none}
+.fdrop-lbl span{display:block;font-size:0.65rem;margin-top:3px;color:var(--tdd)}
+.prev-banner{width:100%;max-height:140px;object-fit:cover;border-radius:5px;margin-top:8px;display:none}
+.prev-banner.on{display:block}
+.prev-icon{width:52px;height:52px;border-radius:10px;object-fit:cover;margin:8px auto 0;display:none}
+.prev-icon.on{display:block}
+.prev-apk{font-size:0.72rem;color:var(--green);margin-top:6px;display:none}
+.prev-apk.on{display:block}
+
+/* screenshots */
+.ss-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.ss-item{position:relative;width:80px;height:142px;border-radius:8px;overflow:hidden;background:var(--s2);flex-shrink:0}
+.ss-item img{width:100%;height:100%;object-fit:cover}
+.ss-rm{position:absolute;top:3px;right:3px;background:rgba(0,0,0,0.75);border:none;color:#fff;width:18px;height:18px;border-radius:50%;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.ss-add{width:80px;height:142px;border-radius:8px;border:1px dashed var(--b2);display:flex;align-items:center;justify-content:center;color:var(--tdd);font-size:1.3rem;cursor:pointer;flex-shrink:0;transition:border-color .15s;position:relative}
+.ss-add:hover{border-color:var(--r);color:var(--r)}
+.ss-add input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+
+/* features */
+.feats{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.feat-row{display:grid;grid-template-columns:48px 1fr 1fr auto;gap:7px;align-items:center}
+.feat-row input{margin:0}
+.feat-rm{background:none;border:none;color:var(--tdd);cursor:pointer;font-size:0.95rem;padding:3px;transition:color .15s}
+.feat-rm:hover{color:#B85050}
+
+/* updates */
+.upd-list{display:flex;flex-direction:column;gap:10px}
+.upd-card{background:var(--s);border:1px solid var(--b);border-radius:8px;padding:14px}
+.upd-card-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.upd-ver{font-size:0.83rem;font-weight:500}
+.upd-date{font-size:0.67rem;color:var(--tdd)}
+.upd-notes{font-size:0.77rem;color:var(--td);line-height:1.55;white-space:pre-line;margin-bottom:8px}
+.upd-apk-link{font-size:0.72rem;color:var(--r);text-decoration:none}
+.upd-apk-link:hover{text-decoration:underline}
+.upd-thumbs{display:flex;gap:6px;margin-bottom:8px}
+.upd-thumb{width:48px;height:84px;border-radius:5px;object-fit:cover}
+
+.upd-form{background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:16px;margin-bottom:14px}
+.upd-form .field{margin-bottom:10px}
+.upd-form .field:last-child{margin-bottom:0}
+.upd-form-title{font-size:0.78rem;font-weight:500;color:var(--t);margin-bottom:12px}
+
+/* toast */
+#toast{position:fixed;bottom:24px;right:24px;background:#101810;border:1px solid var(--green);color:#6ECF9A;padding:9px 16px;border-radius:7px;font-size:0.78rem;font-weight:500;transform:translateY(16px);opacity:0;transition:all .22s;pointer-events:none;z-index:999}
+#toast.on{transform:translateY(0);opacity:1}
+#toast.err{background:#180F0F;border-color:rgba(200,64,64,0.4);color:#CF6E6E}
+
+@media(max-width:680px){
+  .sb{display:none}
+  .panel{padding:18px 16px}
+  .g2,.g3{grid-template-columns:1fr}
+  .feat-row{grid-template-columns:40px 1fr auto}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<aside class="sb">
+  <div class="sb-logo" onclick="window.open('/','_blank')">
+    <div class="sb-sq">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <rect x="3" y="3" width="2" height="10" fill="white" rx="1"/>
+        <rect x="3" y="3" width="7" height="2" fill="white" rx="1"/>
+        <rect x="3" y="7.5" width="5" height="1.5" fill="white" rx="0.75"/>
+        <path d="M11 13c0 0 3.5-3.5 2-7.5 0 0-1 2-2.5 1.5 0 0 2-3 .5-5C11 2 8.5 4.5 8.5 7.5c0 0-1-1.5-.3-3.5C8.2 4 6.5 6 7 8.5 7.5 11.5 9.5 13.5 11 13Z" fill="url(#gn)"/>
+        <defs><linearGradient id="gn" x1="9.5" y1="2" x2="9.5" y2="13" gradientUnits="userSpaceOnUse"><stop stop-color="#F0C040"/><stop offset="1" stop-color="#C8301A"/></linearGradient></defs>
+      </svg>
+    </div>
+    <span class="sb-name">frntcoda</span>
+  </div>
+  <div class="sb-sec">Manage</div>
+  <button class="sb-btn on" id="sb-apps" onclick="show('apps',this)">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x=".5" y=".5" width="5" height="5" rx=".8" stroke-width="1.2"/><rect x="7.5" y=".5" width="5" height="5" rx=".8" stroke-width="1.2"/><rect x=".5" y="7.5" width="5" height="5" rx=".8" stroke-width="1.2"/><rect x="7.5" y="7.5" width="5" height="5" rx=".8" stroke-width="1.2"/></svg>
+    All Apps
+  </button>
+  <button class="sb-btn" id="sb-new" onclick="show('new',this)">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v11M1 6.5h11" stroke-width="1.4" stroke-linecap="round"/></svg>
+    New App
+  </button>
+  <div class="sb-foot"><a href="/" target="_blank">↗ View store</a></div>
+</aside>
+
+<main class="main">
+
+  <!-- ALL APPS -->
+  <div class="panel on" id="panel-apps">
+    <div class="panel-hd">
+      <span class="panel-title">Apps</span>
+      <button class="btn btn-r sm" onclick="show('new',document.getElementById('sb-new'))">+ New App</button>
+    </div>
+    <div id="admin-list"><div class="empty">Loading…</div></div>
+  </div>
+
+  <!-- NEW APP -->
+  <div class="panel" id="panel-new">
+    <div class="panel-hd"><span class="panel-title">New App</span></div>
+    <div class="fw" id="new-fw"></div>
+  </div>
+
+  <!-- EDIT APP -->
+  <div class="panel" id="panel-edit">
+    <div class="panel-hd"><span class="panel-title" id="edit-title">Edit App</span></div>
+    <div class="fw" id="edit-fw"></div>
+  </div>
+
+  <!-- UPDATES -->
+  <div class="panel" id="panel-upd">
+    <div class="panel-hd"><span class="panel-title" id="upd-title">Updates</span></div>
+    <div id="upd-body"></div>
+  </div>
+
+</main>
+</div>
+<div id="toast"></div>
+
+<script>
+const API = '/api/apps';
+let editId = null;
+let ss = { new: [], edit: [] }; // screenshot state
+let updSs = [];                  // update screenshots
+let updAppId = null;
+
+// ── UTILS ──────────────────────────────────────
+function toast(msg, err=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'on' + (err ? ' err' : '');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.className = '', 3000);
+}
+
+function show(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.sb-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('panel-' + name).classList.add('on');
+  if (btn) btn.classList.add('on');
+  if (name === 'apps') loadList();
+  if (name === 'new') { editId=null; ss.new=[]; renderForm('new-fw','new'); }
+}
+
+function f2b64(file) {
+  return new Promise((res,rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+function fmt(d) {
+  return new Date(d).toLocaleDateString('en-NG',{year:'numeric',month:'short',day:'numeric'});
+}
+
+function gv(id) { const e=document.getElementById(id); return e?e.value.trim():''; }
+function pj(s,fb) { try{return JSON.parse(s)}catch{return fb} }
+
+// ── LOAD LIST ─────────────────────────────────
+async function loadList() {
+  try {
+    const apps = await fetch(API).then(r=>r.json());
+    const el = document.getElementById('admin-list');
+    if (!apps.length) { el.innerHTML='<div class="empty">No apps yet.</div>'; return; }
+    el.innerHTML = '<div class="a-grid">'+apps.map(a=>`
+      <div class="a-row">
+        <div class="a-ico">${a.icon?`<img src="${a.icon}"/>`:'📦'}</div>
+        <div class="a-info"><h4>${a.name}</h4><span>${a.category||''} ${a.version?'· v'+a.version:''}</span></div>
+        <div class="a-acts">
+          <button class="btn btn-o sm" onclick="openUpd('${a.id}','${a.name}')">Updates</button>
+          <button class="btn btn-o sm" onclick="openEdit('${a.id}')">Edit</button>
+          <button class="btn btn-del sm" onclick="del('${a.id}','${a.name}')">Delete</button>
+        </div>
+      </div>`).join('')+'</div>';
+  } catch { toast('Failed to load', true); }
+}
+
+// ── FORM ──────────────────────────────────────
+let fc = 0;
+
+function renderForm(wrapperId, ctx, app={}) {
+  ss[ctx] = (app.screenshots||[]).map((s,i)=>({id:i,data:s}));
+  const wrap = document.getElementById(wrapperId);
+  wrap.innerHTML = `
+  <div class="fsec">
+    <div class="fsec-title">Images & APK</div>
+    <div class="g2">
+      <div class="field">
+        <label>Banner</label>
+        <div class="fdrop" id="${ctx}-bdrop">
+          <input type="file" accept="image/*" onchange="prevImg(this,'${ctx}-bprev','banner')"/>
+          <div class="fdrop-lbl">Upload banner<span>JPG, PNG — wide format</span></div>
+          <img class="prev-banner ${app.banner?'on':''}" id="${ctx}-bprev" src="${app.banner||''}"/>
+        </div>
+      </div>
+      <div class="field">
+        <label>App Icon</label>
+        <div class="fdrop" id="${ctx}-idrop">
+          <input type="file" accept="image/*" onchange="prevImg(this,'${ctx}-iprev','icon')"/>
+          <div class="fdrop-lbl">Upload icon<span>Square — 512×512 ideal</span></div>
+          <img class="prev-icon ${app.icon?'on':''}" id="${ctx}-iprev" src="${app.icon||''}"/>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <label>APK File</label>
+      <div class="fdrop">
+        <input type="file" accept=".apk" onchange="prevApk(this,'${ctx}-apkprev')"/>
+        <div class="fdrop-lbl">Upload APK${app.apk?` <b style="color:var(--green)">✓ current: ${app.apk.split('/').pop()}</b>`:''}<span>.apk files only</span></div>
+        <div class="prev-apk ${app.apk?'on':''}" id="${ctx}-apkprev">${app.apk?'✓ '+app.apk.split('/').pop():''}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fsec">
+    <div class="fsec-title">Basic Info</div>
+    <div class="g2">
+      <div class="field"><label>App Name *</label><input id="${ctx}-name" value="${e(app.name||'')}" placeholder="Bixcart"/></div>
+      <div class="field"><label>Category</label><input id="${ctx}-cat" value="${e(app.category||'')}" placeholder="Marketplace"/></div>
+    </div>
+    <div class="field"><label>Tagline</label><input id="${ctx}-tag" value="${e(app.tagline||'')}" placeholder="One-liner description"/></div>
+    <div class="field"><label>About</label><textarea id="${ctx}-about" rows="5">${e(app.about||'')}</textarea></div>
+    <div class="g3">
+      <div class="field"><label>Version</label><input id="${ctx}-ver" value="${e(app.version||'1.0.0')}"/></div>
+      <div class="field"><label>Size</label><input id="${ctx}-size" value="${e(app.size||'')}" placeholder="18 MB"/></div>
+      <div class="field"><label>Platform</label><input id="${ctx}-plat" value="${e(app.platform||'')}" placeholder="Android"/></div>
+    </div>
+    <div class="g2">
+      <div class="field"><label>Downloads (display)</label><input id="${ctx}-dl" value="${e(app.downloads||'')}" placeholder="4.2k"/></div>
+      <div class="field"><label>Rating (0–5)</label><input type="number" id="${ctx}-rat" value="${app.rating||''}" min="0" max="5" step="0.1"/></div>
+    </div>
+    <div class="field"><label>Display Order</label><input type="number" id="${ctx}-ord" value="${app.order||0}" style="max-width:120px"/></div>
+  </div>
+
+  <div class="fsec">
+    <div class="fsec-title">Screenshots</div>
+    <div class="ss-grid" id="${ctx}-ssgrid"></div>
+    <div class="ss-add"><input type="file" accept="image/*" multiple onchange="addSs(this,'${ctx}')"/>+</div>
+  </div>
+
+  <div class="fsec">
+    <div class="fsec-title">Features</div>
+    <div class="feats" id="${ctx}-feats"></div>
+    <button class="btn btn-o sm" type="button" onclick="addFeat('${ctx}')">+ Add Feature</button>
+  </div>
+
+  <div style="display:flex;gap:10px;padding-top:6px">
+    <button class="btn btn-r" onclick="submitForm('${ctx}')">${ctx==='new'?'Create App':'Save Changes'}</button>
+    <button class="btn btn-o" onclick="show('apps',document.getElementById('sb-apps'))">Cancel</button>
+  </div>`;
+
+  (app.features||[]).forEach(f => addFeat(ctx, f));
+  renderSsGrid(ctx);
+}
+
+function e(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;') }
+
+function prevImg(input, previewId, type) {
+  const f = input.files[0]; if(!f) return;
+  const img = document.getElementById(previewId);
+  const reader = new FileReader();
+  reader.onload = ev => { img.src=ev.target.result; img.classList.add('on'); };
+  reader.readAsDataURL(f);
+}
+
+function prevApk(input, previewId) {
+  const f = input.files[0]; if(!f) return;
+  const el = document.getElementById(previewId);
+  el.textContent = '✓ ' + f.name;
+  el.classList.add('on');
+}
+
+async function addSs(input, ctx) {
+  for (const f of Array.from(input.files)) {
+    const data = await f2b64(f);
+    ss[ctx].push({ id: Date.now()+Math.random(), data, file: f });
+  }
+  renderSsGrid(ctx);
+  input.value = '';
+}
+
+function renderSsGrid(ctx) {
+  const grid = document.getElementById(ctx+'-ssgrid');
+  if (!grid) return;
+  grid.innerHTML = ss[ctx].map((s,i) => `
+    <div class="ss-item">
+      <img src="${s.data}"/>
+      <button class="ss-rm" onclick="rmSs('${ctx}',${i})">×</button>
+    </div>`).join('');
+}
+
+function rmSs(ctx, i) {
+  ss[ctx].splice(i, 1);
+  renderSsGrid(ctx);
+}
+
+function addFeat(ctx, feat={}) {
+  const id = 'fr'+(++fc);
+  const list = document.getElementById(ctx+'-feats');
+  const row = document.createElement('div');
+  row.className='feat-row'; row.id=id;
+  row.innerHTML=`
+    <input type="text" placeholder="🛒" value="${e(feat.icon||'')}" style="text-align:center"/>
+    <input type="text" placeholder="Title" value="${e(feat.title||'')}"/>
+    <input type="text" placeholder="Short desc" value="${e(feat.desc||'')}"/>
+    <button class="feat-rm" onclick="document.getElementById('${id}').remove()">×</button>`;
+  list.appendChild(row);
+}
+
+function collectFeats(ctx) {
+  return Array.from(document.querySelectorAll(`#${ctx}-feats .feat-row`))
+    .map(r => { const ins=r.querySelectorAll('input'); return {icon:ins[0].value.trim(),title:ins[1].value.trim(),desc:ins[2].value.trim()}; })
+    .filter(f => f.title);
+}
+
+async function submitForm(ctx) {
+  const name = gv(ctx+'-name');
+  if (!name) { toast('App name is required', true); return; }
+
+  const fd = new FormData();
+  fd.append('name', name);
+  fd.append('category', gv(ctx+'-cat'));
+  fd.append('tagline', gv(ctx+'-tag'));
+  fd.append('about', gv(ctx+'-about'));
+  fd.append('version', gv(ctx+'-ver') || '1.0.0');
+  fd.append('size', gv(ctx+'-size'));
+  fd.append('platform', gv(ctx+'-plat'));
+  fd.append('downloads', gv(ctx+'-dl'));
+  fd.append('rating', gv(ctx+'-rat') || '0');
+  fd.append('order', gv(ctx+'-ord') || '0');
+  fd.append('features', JSON.stringify(collectFeats(ctx)));
+
+  // banner file
+  const bFile = document.querySelector(`#${ctx}-bdrop input[type=file]`).files[0];
+  if (bFile) fd.append('banner', bFile);
+
+  // icon file
+  const iFile = document.querySelector(`#${ctx}-idrop input[type=file]`).files[0];
+  if (iFile) fd.append('icon', iFile);
+
+  // apk file
+  const apkInput = document.querySelector(`#panel-${ctx === 'new' ? 'new' : 'edit'} input[accept=".apk"]`);
+  if (apkInput && apkInput.files[0]) fd.append('apk', apkInput.files[0]);
+
+  // screenshots: upload new files, keep existing URLs
+  const existingUrls = ss[ctx].filter(s => !s.file).map(s => s.data);
+  const newFiles = ss[ctx].filter(s => s.file).map(s => s.file);
+  newFiles.forEach(f => fd.append('screenshots', f));
+  // send existing URLs so server can merge
+  fd.append('existingScreenshots', JSON.stringify(existingUrls));
+
+  try {
+    const url = ctx === 'edit' ? `${API}/${editId}` : API;
+    const method = ctx === 'edit' ? 'PUT' : 'POST';
+    const res = await fetch(url, { method, body: fd });
+    if (!res.ok) throw new Error((await res.json()).error || 'Error');
+    toast(ctx === 'edit' ? 'Saved ✓' : 'Created ✓');
+    setTimeout(() => show('apps', document.getElementById('sb-apps')), 700);
+  } catch(err) { toast(err.message, true); }
+}
+
+// ── EDIT ──────────────────────────────────────
+async function openEdit(id) {
+  editId = id;
+  try {
+    const app = await fetch(`${API}/${id}`).then(r=>r.json());
+    // screenshots: existing are URLs (not files)
+    ss.edit = (app.screenshots||[]).map((s,i) => ({ id: i, data: s })); // data = url path
+    document.getElementById('edit-title').textContent = 'Edit — ' + app.name;
+    renderForm('edit-fw', 'edit', app);
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+    document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('on'));
+    document.getElementById('panel-edit').classList.add('on');
+  } catch { toast('Failed to load', true); }
+}
+
+// ── DELETE ────────────────────────────────────
+async function del(id, name) {
+  if (!confirm(`Delete "${name}"?`)) return;
+  try {
+    await fetch(`${API}/${id}`, { method: 'DELETE' });
+    toast('Deleted.');
+    loadList();
+  } catch { toast('Failed', true); }
+}
+
+// ── UPDATES ───────────────────────────────────
+async function openUpd(id, name) {
+  updAppId = id;
+  updSs = [];
+  document.getElementById('upd-title').textContent = name + ' — Updates';
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('panel-upd').classList.add('on');
+  await renderUpd(id);
+}
+
+async function renderUpd(id) {
+  const body = document.getElementById('upd-body');
+  try {
+    const app = await fetch(`${API}/${id}`).then(r=>r.json());
+    const hist = (app.updates||[]).map(u=>`
+      <div class="upd-card" id="uc-${u.id}" style="${u.hidden?'opacity:.45':''}">
+        <div class="upd-card-hd">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="upd-ver">v${u.version}</span>
+            <span class="upd-vis-badge" id="vbadge-${u.id}" style="font-size:.65rem;padding:2px 8px;border-radius:50px;background:${u.hidden?'rgba(100,80,60,0.25)':'rgba(30,138,74,0.15)'};color:${u.hidden?'var(--tdd)':'var(--green)'}">
+              ${u.hidden?'hidden':'visible'}
+            </span>
+          </div>
+          <div style="display:flex;align-items:center;gap:7px">
+            <span class="upd-date">${fmt(u.date)}</span>
+            <button class="btn btn-o sm" id="vtoggle-${u.id}" onclick="toggleUpd('${id}','${u.id}',${!!u.hidden})">${u.hidden?'Show':'Hide'}</button>
+            <button class="btn btn-del sm" onclick="delUpd('${id}','${u.id}')">Remove</button>
+          </div>
+        </div>
+        ${(u.screenshots||[]).length?`<div class="upd-thumbs">${u.screenshots.map(s=>`<img class="upd-thumb" src="${s}" loading="lazy"/>`).join('')}</div>`:''}
+        <div class="upd-notes">${u.whatsNew}</div>
+        ${u.apk?`<a class="upd-apk-link" href="${u.apk}" download>↓ Download v${u.version} APK</a>`:''}
+      </div>`).join('') || '<div class="empty" style="padding:16px 0">No updates yet.</div>';
+
+    body.innerHTML = `
+      <div class="upd-form">
+        <div class="upd-form-title">Post Update</div>
+        <div class="field"><label>Version *</label><input id="upd-ver" placeholder="2.0.0" style="max-width:180px"/></div>
+        <div class="field"><label>What's new *</label><textarea id="upd-notes" rows="4" placeholder="— Fixed crash on startup&#10;— Added dark mode"></textarea></div>
+        <div class="field">
+          <label>APK for this version</label>
+          <div class="fdrop" style="max-width:340px">
+            <input type="file" accept=".apk" onchange="prevUpd(this)"/>
+            <div class="fdrop-lbl">Upload new APK<span>Will replace the current download</span></div>
+            <div class="prev-apk" id="upd-apk-prev"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Screenshots (optional)</label>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px" id="upd-ss-grid"></div>
+          <div class="ss-add" style="width:70px;height:120px"><input type="file" accept="image/*" multiple onchange="addUpdSs(this)"/>+</div>
+        </div>
+        <button class="btn btn-g sm" onclick="postUpd()">Post Update</button>
+      </div>
+      <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--tdd);margin-bottom:12px">History</div>
+      <div class="upd-list">${hist}</div>`;
+  } catch { toast('Failed', true); }
+}
+
+function prevUpd(input) {
+  const f = input.files[0]; if(!f) return;
+  const el = document.getElementById('upd-apk-prev');
+  el.textContent = '✓ '+f.name; el.classList.add('on');
+}
+
+async function addUpdSs(input) {
+  for (const f of Array.from(input.files)) {
+    updSs.push({ data: await f2b64(f), file: f });
+  }
+  const grid = document.getElementById('upd-ss-grid');
+  grid.innerHTML = updSs.map((s,i)=>`
+    <div class="ss-item">
+      <img src="${s.data}"/>
+      <button class="ss-rm" onclick="updSs.splice(${i},1);addUpdSs({files:[]})">×</button>
+    </div>`).join('');
+  input.value='';
+}
+
+async function postUpd() {
+  const ver = gv('upd-ver');
+  const notes = gv('upd-notes');
+  if (!ver || !notes) { toast('Version and notes required', true); return; }
+
+  const fd = new FormData();
+  fd.append('version', ver);
+  fd.append('whatsNew', notes);
+
+  const apkInput = document.querySelector('.upd-form input[accept=".apk"]');
+  if (apkInput && apkInput.files[0]) fd.append('apk', apkInput.files[0]);
+  updSs.filter(s => s.file).forEach(s => fd.append('screenshots', s.file));
+
+  try {
+    const res = await fetch(`${API}/${updAppId}/updates`, { method: 'POST', body: fd });
+    if (!res.ok) throw new Error((await res.json()).error);
+    toast('Update posted ✓');
+    updSs = [];
+    renderUpd(updAppId);
+  } catch(err) { toast(err.message, true); }
+}
+
+async function toggleUpd(appId, uid, currentlyHidden) {
+  try {
+    const res = await fetch(`${API}/${appId}/updates/${uid}/toggle`, { method: 'PATCH' });
+    if (!res.ok) throw new Error();
+    const { hidden } = await res.json();
+    // update card opacity + badge + button without full re-render
+    const card = document.getElementById('uc-'+uid);
+    const badge = document.getElementById('vbadge-'+uid);
+    const btn = document.getElementById('vtoggle-'+uid);
+    if (card) card.style.opacity = hidden ? '.45' : '1';
+    if (badge) {
+      badge.textContent = hidden ? 'hidden' : 'visible';
+      badge.style.background = hidden ? 'rgba(100,80,60,0.25)' : 'rgba(30,138,74,0.15)';
+      badge.style.color = hidden ? 'var(--tdd)' : 'var(--green)';
+    }
+    if (btn) { btn.textContent = hidden ? 'Show' : 'Hide'; btn.onclick = () => toggleUpd(appId, uid, hidden); }
+    toast(hidden ? 'Hidden from store' : 'Visible on store');
+  } catch { toast('Failed to toggle', true); }
+}
+
+async function delUpd(appId, uid) {
+  if (!confirm('Remove this update?')) return;
+  try {
+    await fetch(`${API}/${appId}/updates/${uid}`, { method: 'DELETE' });
+    toast('Removed.');
+    renderUpd(appId);
+  } catch { toast('Failed', true); }
+}
+
+// ── INIT ──────────────────────────────────────
+loadList();
+renderForm('new-fw', 'new');
+</script>
+</body>
+</html>
